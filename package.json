@@ -21,6 +21,7 @@
     "vite": "^5.0.0"
   },
   "dependencies": {
-    "firebase": "^11.1.0"
+    "firebase": "^11.1.0" ,
+    "xlsx": "^0.18.5"
   }
 }
