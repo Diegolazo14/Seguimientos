@@ -1,0 +1,164 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seguimiento de Partido</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #ff4d4d;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .stat-item, .timer-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px;
+            color: #fff;
+            background: #ff4d4d;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #cc0000;
+        }
+        .display {
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Seguimiento de Partido</h1>
+        <div class="section">
+            <h2>Estadísticas</h2>
+            <div class="stat-item">
+                <span>Goles Equipo A:</span>
+                <span id="golesA" class="display">0</span>
+                <button onclick="increment('golesA')">+</button>
+            </div>
+            <div class="stat-item">
+                <span>Goles Equipo B:</span>
+                <span id="golesB" class="display">0</span>
+                <button onclick="increment('golesB')">+</button>
+            </div>
+            <div class="stat-item">
+                <span>Pases Equipo A:</span>
+                <span id="pasesA" class="display">0</span>
+                <button onclick="increment('pasesA')">+</button>
+            </div>
+            <div class="stat-item">
+                <span>Pases Equipo B:</span>
+                <span id="pasesB" class="display">0</span>
+                <button onclick="increment('pasesB')">+</button>
+            </div>
+        </div>
+        <div class="section">
+            <h2>Cronómetros</h2>
+            <div class="timer-item">
+                <span>Tiempo Equipo A:</span>
+                <span id="timerA" class="display">0:00</span>
+                <button onclick="startTimer('A')">Equipo A</button>
+            </div>
+            <div class="timer-item">
+                <span>Tiempo Equipo B:</span>
+                <span id="timerB" class="display">0:00</span>
+                <button onclick="startTimer('B')">Equipo B</button>
+            </div>
+            <div class="timer-item">
+                <span>Tiempo Pausado:</span>
+                <span id="pausedTime" class="display">0:00</span>
+                <button onclick="startPauseTimer()">Pausar</button>
+            </div>
+        </div>
+        <button onclick="exportStats()">Exportar Datos</button>
+    </div>
+    <script>
+        let timers = { A: 0, B: 0 };
+        let intervals = { A: null, B: null, paused: null };
+        let pausedTime = 0;
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
+        function increment(id) {
+            const element = document.getElementById(id);
+            const current = parseInt(element.textContent, 10);
+            element.textContent = current + 1;
+        }
+
+        function startTimer(team) {
+            clearInterval(intervals.paused);
+            intervals.paused = null;
+
+            Object.keys(intervals).forEach(t => clearInterval(intervals[t]));
+            intervals[team] = setInterval(() => {
+                timers[team]++;
+                document.getElementById(`timer${team}`).textContent = formatTime(timers[team]);
+            }, 1000);
+        }
+
+        function startPauseTimer() {
+            clearInterval(intervals.A);
+            clearInterval(intervals.B);
+
+            if (!intervals.paused) {
+                intervals.paused = setInterval(() => {
+                    pausedTime++;
+                    document.getElementById("pausedTime").textContent = formatTime(pausedTime);
+                }, 1000);
+            }
+        }
+
+        function exportStats() {
+            const stats = {
+                Goles_Equipo_A: document.getElementById("golesA").textContent,
+                Goles_Equipo_B: document.getElementById("golesB").textContent,
+                Pases_Equipo_A: document.getElementById("pasesA").textContent,
+                Pases_Equipo_B: document.getElementById("pasesB").textContent,
+                Tiempo_Equipo_A: document.getElementById("timerA").textContent,
+                Tiempo_Equipo_B: document.getElementById("timerB").textContent,
+                Tiempo_Pausado: document.getElementById("pausedTime").textContent,
+            };
+
+            const csvContent = "data:text/csv;charset=utf-8,"
+                + Object.keys(stats).join(",") + "\n"
+                + Object.values(stats).join(",");
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "estadisticas_partido.csv");
+            document.body.appendChild(link);
+            link.click();
+        }
+    </script>
+</body>
+</html>
