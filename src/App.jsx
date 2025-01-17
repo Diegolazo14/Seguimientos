@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import * as XLSX from "xlsx"; // Importar la biblioteca para exportar a Excel
+const XLSX = window.XLSX;
 import database from "./FirebaseConfig";
 import { ref, set } from "firebase/database";
 
