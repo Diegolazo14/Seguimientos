@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import database from "./FirebaseConfig";
 import { ref, set } from "firebase/database";
 
-const XLSX = window.XLSX; // Usar XLSX desde el CDN
+const XLSX = window.XLSX;
 
 function App() {
   const [stats, setStats] = useState({
@@ -25,7 +25,6 @@ function App() {
 
   const [active, setActive] = useState({ red: false, blue: false, paused: false, started: false });
 
-  // Cronómetro de tiempo transcurrido
   useEffect(() => {
     let timer;
     if (active.started) {
@@ -36,7 +35,6 @@ function App() {
     return () => clearInterval(timer);
   }, [active.started]);
 
-  // Cronómetros de posesión y tiempo pausado
   useEffect(() => {
     let interval;
     if (active.red) {
@@ -49,7 +47,6 @@ function App() {
     return () => clearInterval(interval);
   }, [active]);
 
-  // Función para actualizar estadísticas
   const updateStats = (key, value) => {
     setStats((prev) => {
       const updated = { ...prev, [key]: prev[key] + value };
@@ -58,12 +55,10 @@ function App() {
     });
   };
 
-  // Sincronización con Firebase
   const syncToFirebase = (data) => {
     set(ref(database, "matchStats"), data);
   };
 
-  // Formatear tiempo a hh:mm:ss
   const formatTime = (time) => {
     const hours = Math.floor(time / 3600);
     const minutes = Math.floor((time % 3600) / 60);
@@ -73,7 +68,6 @@ function App() {
       .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
   };
 
-  // Calcular porcentaje de posesión
   const calculatePossession = () => {
     const totalTimePlayed = stats.timeTeamRed + stats.timeTeamBlue;
     const possessionRed = totalTimePlayed
@@ -85,7 +79,6 @@ function App() {
     return { possessionRed, possessionBlue };
   };
 
-  // Funciones para goles y tiros con registro de tiempos
   const handleGolRed = () => {
     const currentTime = formatTime(stats.timeElapsed);
     setGolTimesRed((prev) => [...prev, currentTime]);
@@ -110,7 +103,6 @@ function App() {
     updateStats("tirosTeamBlue", 1);
   };
 
-  // Función para exportar datos a Excel
   const exportToExcel = () => {
     const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, "-");
 
