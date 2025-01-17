@@ -13,6 +13,6 @@ const firebaseConfig = {
 
 
 const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
+const database = getDatabase(app, "https://seguimientopartido-default-rtdb.firebaseio.com");
 
 export default database;
