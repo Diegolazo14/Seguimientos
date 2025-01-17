@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-const XLSX = window.XLSX;
 import database from "./FirebaseConfig";
 import { ref, set } from "firebase/database";
+
+const XLSX = window.XLSX; // Usar XLSX desde el CDN
 
 function App() {
   const [stats, setStats] = useState({
@@ -17,10 +18,10 @@ function App() {
     timePaused: 0,
   });
 
-  const [golTimesRed, setGolTimesRed] = useState([]); // Registrar tiempos de goles del Equipo Rojo
-  const [golTimesBlue, setGolTimesBlue] = useState([]); // Registrar tiempos de goles del Equipo Azul
-  const [tiroTimesRed, setTiroTimesRed] = useState([]); // Registrar tiempos de tiros del Equipo Rojo
-  const [tiroTimesBlue, setTiroTimesBlue] = useState([]); // Registrar tiempos de tiros del Equipo Azul
+  const [golTimesRed, setGolTimesRed] = useState([]);
+  const [golTimesBlue, setGolTimesBlue] = useState([]);
+  const [tiroTimesRed, setTiroTimesRed] = useState([]);
+  const [tiroTimesBlue, setTiroTimesBlue] = useState([]);
 
   const [active, setActive] = useState({ red: false, blue: false, paused: false, started: false });
 
@@ -70,6 +71,18 @@ function App() {
     return `${hours.toString().padStart(2, "0")}:${minutes
       .toString()
       .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+  };
+
+  // Calcular porcentaje de posesión
+  const calculatePossession = () => {
+    const totalTimePlayed = stats.timeTeamRed + stats.timeTeamBlue;
+    const possessionRed = totalTimePlayed
+      ? Math.round((stats.timeTeamRed / totalTimePlayed) * 100)
+      : 0;
+    const possessionBlue = totalTimePlayed
+      ? Math.round((stats.timeTeamBlue / totalTimePlayed) * 100)
+      : 0;
+    return { possessionRed, possessionBlue };
   };
 
   // Funciones para goles y tiros con registro de tiempos
@@ -128,6 +141,8 @@ function App() {
     XLSX.writeFile(wb, `Datos_Partido_${timestamp}.xlsx`);
   };
 
+  const { possessionRed, possessionBlue } = calculatePossession();
+
   return (
     <div style={{ textAlign: "center", marginTop: "50px" }}>
       <h1>Seguimiento de Partido</h1>
@@ -139,6 +154,35 @@ function App() {
         <button onClick={exportToExcel} style={{ marginTop: "20px" }}>
           Exportar Datos a Excel
         </button>
+      </div>
+      <div
+        style={{
+          display: "flex",
+          height: "30px",
+          background: "#ddd",
+          marginTop: "20px",
+        }}
+      >
+        <div
+          style={{
+            width: `${possessionRed}%`,
+            background: "red",
+            textAlign: "center",
+            color: "white",
+          }}
+        >
+          {possessionRed}%
+        </div>
+        <div
+          style={{
+            width: `${possessionBlue}%`,
+            background: "blue",
+            textAlign: "center",
+            color: "white",
+          }}
+        >
+          {possessionBlue}%
+        </div>
       </div>
     </div>
   );
