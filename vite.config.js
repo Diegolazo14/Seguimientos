@@ -3,9 +3,11 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
+  root: './',
   build: {
+    outDir: 'dist',
     rollupOptions: {
-      external: ["firebase"], // Excluir Firebase si es necesario
+     input: './index.html', //Specify the entry file
     },
   },
 });
